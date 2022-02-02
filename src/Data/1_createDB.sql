@@ -12,7 +12,7 @@ GO
 
 
 
-----------------------------------------Table dbo.Categorie----------------------------------------------
+----------------------------------------Table dbo.Category----------------------------------------------
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -20,22 +20,22 @@ GO
 SET ANSI_PADDING ON
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Categorie]') AND type IN (N'U'))
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Category]') AND type IN (N'U'))
 BEGIN
-	IF NOT EXISTS (SELECT * FROM [dbo].[Categorie])
+	IF NOT EXISTS (SELECT * FROM [dbo].[Category])
 	BEGIN
-		DROP TABLE [dbo].[Categorie];
+		DROP TABLE [dbo].[Category];
 	END
 END
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Categorie]') AND type IN (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Category]') AND type IN (N'U'))
 BEGIN
-	CREATE TABLE [dbo].[Categorie] (
-		[CategorieId] [int] IDENTITY(1, 1) NOT NULL,
+	CREATE TABLE [dbo].[Category] (
+		[CategoryId] [int] IDENTITY(1, 1) NOT NULL,
 		[Description] [varchar](255) NOT NULL,
-		CONSTRAINT [PK_Categorie] PRIMARY KEY CLUSTERED
+		CONSTRAINT [PK_Category] PRIMARY KEY CLUSTERED
 		(
-			[CategorieId] ASC
+			[CategoryId] ASC
 		)
 	);
 END
@@ -63,7 +63,7 @@ BEGIN
 		[ProductId]		[int] IDENTITY(1, 1) NOT NULL,
 		[Name]			[varchar] (255) NOT NULL,
 		[Description]	[varchar](1024) NULL,
-		[CategorieId]	[int] NOT NULL,
+		[CategoryId]	[int] NOT NULL,
 		[Image]			[varchar] (1024) NOT NULL,
 		[Status]		[bit] NOT NULL
 		CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED
@@ -76,8 +76,8 @@ GO
 
 ----------------------------------------          Keys        ----------------------------------------------
 
-IF NOT EXISTS (SELECT * FROM sys.objects o WHERE o.object_id = object_id(N'[dbo].[FK_Product_CategorieId_Categorie_CategorieId]') AND OBJECTPROPERTY(o.object_id, N'IsForeignKey') = 1)
+IF NOT EXISTS (SELECT * FROM sys.objects o WHERE o.object_id = object_id(N'[dbo].[FK_Product_CategoryId_Category_CategoryId]') AND OBJECTPROPERTY(o.object_id, N'IsForeignKey') = 1)
 BEGIN
-    ALTER TABLE [dbo].[Product] WITH CHECK ADD CONSTRAINT [FK_Product_CategorieId_Categorie_CategorieId] FOREIGN KEY([CategorieId]) REFERENCES [dbo].[Categorie] ([CategorieId]);
+    ALTER TABLE [dbo].[Product] WITH CHECK ADD CONSTRAINT [FK_Product_CategoryId_Category_CategoryId] FOREIGN KEY([CategoryId]) REFERENCES [dbo].[Category] ([CategoryId]);
 END
 GO
