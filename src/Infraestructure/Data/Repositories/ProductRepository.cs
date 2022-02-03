@@ -18,7 +18,7 @@ public class ProductRepository : GenericRepository<BaseDbContext, Product>
             var productsQuery = _unitOfWork.Context.Products.AsNoTracking()
                 .Include(x => x.Category)
                 .Where(x => EF.Functions.Like(x.Name, $"%{requestData.Search}%") || EF.Functions.Like(x.Description, $"%{requestData.Search}%") || EF.Functions.Like(x.Category.Description, $"%{requestData.Search}%"))
-                .Skip(requestData.Skip * 10)
+                .Skip((requestData.Page - 1) * 10)
                 .Take(10);
 
             if (requestData.OrderingName != null)

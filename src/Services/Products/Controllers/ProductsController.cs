@@ -18,12 +18,17 @@ public class ProductsController : ControllerBase
     private readonly ILogger _logger;
     private readonly IUnitOfWork<BaseDbContext> _unitOfWork;
     private readonly ProductRepository _productRepository;
+    private readonly IWebHostEnvironment _env;
+    private readonly string _folder = "Resources\\Images";
+    private readonly string _fullPath = string.Empty;
 
-    public ProductsController(ILogger<object> logger, IUnitOfWork<BaseDbContext> unitOfWork)
+    public ProductsController(ILogger<object> logger, IUnitOfWork<BaseDbContext> unitOfWork, IWebHostEnvironment env)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _productRepository = new ProductRepository(_unitOfWork);
+        _env = env;
+        _fullPath = Path.Combine(_env.ContentRootPath, _folder);
     }
 
     [HttpGet]
@@ -38,7 +43,13 @@ public class ProductsController : ControllerBase
 
         try
         {
+            requestData.Page = requestData.Page == 0 ? 1 : requestData.Page;
             var products = await _productRepository.GetAllProductsAsync(requestData);
+            foreach (Product product in products.Data)
+            {
+                byte[] imageArray = System.IO.File.ReadAllBytes(Path.Combine(_fullPath, $"{product.Image}"));
+                product.Image = Convert.ToBase64String(imageArray);
+            }
             return Ok(products);
         }
         catch (Exception ex)
@@ -57,6 +68,9 @@ public class ProductsController : ControllerBase
             var product = await _productRepository.GetAsync(productId, true);
             if (product is null)
                 return NotFound();
+
+            byte[] imageArray = System.IO.File.ReadAllBytes(Path.Combine(_fullPath, $"{product.Image}"));
+            product.Image = Convert.ToBase64String(imageArray);
             return Ok(product);
         }
         catch (Exception ex)
@@ -74,11 +88,30 @@ public class ProductsController : ControllerBase
             return BadRequest();
         try
         {
+            var tempImage = product.Image;
+            _unitOfWork.CreateTransaction();
             product.ProductId = 0;
             product.Category = null;
             product.Status = true;
+            product.Image = string.Empty;
             product = await _productRepository.InsertAsync(product);
             _unitOfWork.Save();
+
+            var filePath = Path.Combine(_fullPath, $"{product.ProductId}.png");
+            try
+            {
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(tempImage));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error: Controller: {nameof(ProductsController)}; Method: {nameof(InsertAsync)}");
+                _unitOfWork.Rollback();
+                return BadRequest();
+            }
+            product.Image = $"{product.ProductId}.png";
+            _unitOfWork.Save();
+            _unitOfWork.Commit();
+
             return Ok(product);
         }
         catch (Exception ex)
@@ -101,13 +134,28 @@ public class ProductsController : ControllerBase
             {
                 return NotFound();
             }
+            _unitOfWork.CreateTransaction();
+            var tempImage = product.Image;
             currentProduct.Name = product.Name;
             currentProduct.Description = product.Description;
-            currentProduct.Image = product.Image;
             currentProduct.CategoryId = product.CategoryId;
             currentProduct.Status = true;
             currentProduct.Category = null;
             _unitOfWork.Save();
+
+            var filePath = Path.Combine(_fullPath, $"{currentProduct.Image}");
+            try
+            {
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(tempImage));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error: Controller: {nameof(ProductsController)}; Method: {nameof(InsertAsync)}");
+                _unitOfWork.Rollback();
+                return BadRequest();
+            }
+            _unitOfWork.Commit();
+
             return Ok(currentProduct);
         }
         catch (Exception ex)

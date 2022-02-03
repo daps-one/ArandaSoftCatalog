@@ -12,6 +12,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSqlServerContext(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddUnitOfWork();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddCors();
 
 //Logging
 builder.Logging.ClearProviders();
@@ -27,6 +28,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseAuthorization();
 

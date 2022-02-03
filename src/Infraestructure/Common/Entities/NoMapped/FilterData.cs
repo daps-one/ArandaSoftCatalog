@@ -14,7 +14,7 @@ public class ResponseData<T>
 public class RequestData
 {
     [Required]
-    public int Skip { get; set; }
+    public int Page { get; set; }
 
     public string Search { get; set; }
 
