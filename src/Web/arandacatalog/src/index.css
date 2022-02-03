@@ -16,3 +16,39 @@ code {
   justify-content: center;
   align-items: center;
 }
+
+.color-primary { 
+  color: #28058D !important;
+}
+
+.back-primary:not(:disabled) { 
+  background-color: #28058D !important;
+}
+
+.color-primary:hover {
+  color: #656AC1 !important;
+}
+
+.select-primary::after {
+  border-bottom: 2px solid #28058D !important;
+}
+
+.back-primary:hover {
+  background-color: #656AC1 !important;
+}
+
+.back-secondary {
+  background-color: #93A1E6 !important;
+}
+
+.back-secondary:hover {
+  background-color: #B5C0F9 !important;
+}
+
+.MuiFilledInput-root::after {
+  border-bottom: 2px solid  #28058D !important;
+}
+
+.MuiInputLabel-root.MuiInputLabel-shrink {
+  color: #28058D !important;
+}

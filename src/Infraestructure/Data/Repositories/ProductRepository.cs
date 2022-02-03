@@ -21,13 +21,24 @@ public class ProductRepository : GenericRepository<BaseDbContext, Product>
                 .Skip((requestData.Page - 1) * 10)
                 .Take(10);
 
+            var totalProductsQuery = _unitOfWork.Context.Products.AsNoTracking()
+                .Include(x => x.Category)
+                .Where(x => EF.Functions.Like(x.Name, $"%{requestData.Search}%") || EF.Functions.Like(x.Description, $"%{requestData.Search}%") || EF.Functions.Like(x.Category.Description, $"%{requestData.Search}%"));
+
             if (requestData.OrderingName != null)
-                productsQuery = requestData.OrderingAsc 
+            {
+                productsQuery = requestData.OrderingAsc
                     ? productsQuery.OrderBy(x => requestData.OrderingName == "Name" ? x.Name : x.Category.Description)
                     : productsQuery.OrderByDescending(x => requestData.OrderingName == "Name" ? x.Name : x.Category.Description);
-            
+
+                totalProductsQuery = requestData.OrderingAsc
+                    ? totalProductsQuery.OrderBy(x => requestData.OrderingName == "Name" ? x.Name : x.Category.Description)
+                    : totalProductsQuery.OrderByDescending(x => requestData.OrderingName == "Name" ? x.Name : x.Category.Description);
+            }
+
             var products = await productsQuery.ToListAsync();
-            var totalProducts = await _unitOfWork.Context.Products.CountAsync();
+            var totalProducts = await totalProductsQuery.CountAsync();
+
 
             return new ResponseData<Product>
             {

@@ -28,7 +28,7 @@ export default class ProductService {
             name: product.name,
             description: product.description,
             image: product.image,
-            categoryId: product.category.categoryId  
+            categoryId: product.categoryId
         });
     }
 
@@ -37,7 +37,7 @@ export default class ProductService {
             name: product.name,
             description: product.description,
             image: product.image,
-            categoryId: product.category.categoryId  
+            categoryId: product.categoryId
         });
     }
 
